@@ -9,190 +9,219 @@
 </head>
 
 <body>
-  <div class="container">
-    <div>
-      <label for="form-title" class="form-label mb-4 d-flex justify-content-center" *ngIf="activeMode === 'aes'">Angular Encryption/Decryption Using
-        NPM&nbsp;
-        <a href="https://www.npmjs.com/package/crypto-js" target="_blank">crypto-js</a></label>
-      <label for="form-title" class="form-label mb-4 d-flex justify-content-center" *ngIf="activeMode === 'rsa'">Angular Encryption/Decryption Using
-        NPM&nbsp;
-        <a href="https://www.npmjs.com/package/node-forge" target="_blank">node-forge</a></label>
-    </div>
-
-    <div class="d-flex justify-content-center mb-4">
-      <div class="mode-toggle" role="group" aria-label="Encryption mode toggle">
-        <button type="button" class="mode-btn mode-btn-aes" [class.active]="activeMode === 'aes'"
-          (click)="setMode('aes')">AES</button>
-        <button type="button" class="mode-btn mode-btn-rsa" [class.active]="activeMode === 'rsa'"
-          (click)="setMode('rsa')">RSA</button>
-      </div>
-    </div>
-
-    <div *ngIf="activeMode === 'aes'">
-    <div class="key-section mb-4">
-      <label for="key" class="form-label">Symmetric Key</label>
-      <input type="text" id="key" class="form-control" placeholder="Enter symmetric key here" [(ngModel)]="encDecKey">
-    </div>
-
-    <div class="key-section mb-4">
-      <label for="keyIV" class="form-label">Symmetric IV Key</label>
-      <input type="text" id="keyIV" class="form-control" placeholder="Enter symmetric IV key here"
-        [(ngModel)]="encDecKeyIV">
-    </div>
-
-    <div class="row">
-      <div class="col-md-6">
-        <label for="plaintext" class="form-label">Plain Text to Encrypt</label>
-        <input type="text" id="plaintext" class="form-control" placeholder="Enter plain text"
-          [(ngModel)]="userPlainText">
-      </div>
-      <div class="col-md-6">
-        <label for="encryptedtext" class="form-label">Encrypted Text to Decrypt</label>
-        <input type="text" id="encryptedtext" class="form-control" placeholder="Enter encrypted text"
-          [(ngModel)]="userEncryptedText">
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-6">
-        <div class="row">
-          <div class="col-md-6">
-            <button type="button" class="btn btn-light" (click)="clearEncryptDataFields()">Clear</button>
-          </div>
-          <div class="col-md-6">
-            <button id="encrypt-btn" class="btn btn-primary" (click)="dataEncryptor(userPlainText)">Encrypt</button>
-          </div>
+  <div class="app-shell">
+    <div class="container app-card">
+      <header class="app-header">
+        <div class="app-header-icon" aria-hidden="true">🔐</div>
+        <h1 class="app-title">Encryption / Decryption Toolkit</h1>
+        <div>
+          <label for="form-title" class="app-subtitle" *ngIf="activeMode === 'aes'">Angular Encryption/Decryption Using
+            NPM&nbsp;
+            <a href="https://www.npmjs.com/package/crypto-js" target="_blank">crypto-js</a></label>
+          <label for="form-title" class="app-subtitle" *ngIf="activeMode === 'rsa'">Angular Encryption/Decryption Using
+            NPM&nbsp;
+            <a href="https://www.npmjs.com/package/node-forge" target="_blank">node-forge</a></label>
         </div>
-      </div>
-      <div class="col-md-6">
+      </header>
 
-        <div class="row">
-          <div class="col-md-6">
-            <button type="button" class="btn btn-light" (click)="clearDecryptDataFields()">Clear</button>
-          </div>
-          <div class="col-md-6">
-            <button id="decrypt-btn" class="btn btn-secondary"
-              (click)="dataDecryptor(userEncryptedText)">Decrypt</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row mt-4">
-      <div class="col-md-6">
-        <div class="label-section">
-          <div class="row d-grid align-items-end justify-content-end text-center mb-0">
-            <img *ngIf='encryptedData!=""' src="assets/img/copy.svg" alt="copy" class="copy-icon"
-              (click)="copyToClipboard(encryptedData)">
-          </div>
-          Encrypted Value:
-          <div id="encrypted-label" class="encrypted-label">
-            {{encryptedData}}
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="label-section">
-          <div class="row d-grid align-items-end justify-content-end text-center mb-0">
-            <img *ngIf='decryptedData!=""' src="assets/img/copy.svg" alt="copy" class="copy-icon"
-              (click)="copyToClipboard(decryptedData)">
-          </div>
-          Decrypted Value:
-          <div id="decrypted-label" class="decrypted-label"> {{decryptedData}}</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="d-flex justify-content-end">
-      <button type="button" class="btn btn-danger" (click)="clearAll()">Clear All</button>
-    </div>
-    </div>
-
-    <div *ngIf="activeMode === 'rsa'">
-      <div class="key-section mb-4">
-        <label for="rsaPublicKey" class="form-label">RSA Public Key (Base64 / PEM)</label>
-        <textarea id="rsaPublicKey" class="form-control" rows="3" placeholder="Enter RSA public key here"
-          [(ngModel)]="rsaPublicKey"></textarea>
-      </div>
-
-      <div class="key-section mb-4">
-        <label for="rsaPrivateKey" class="form-label">RSA Private Key (Base64 / PEM)</label>
-        <textarea id="rsaPrivateKey" class="form-control" rows="3" placeholder="Enter RSA private key here"
-          [(ngModel)]="rsaPrivateKey"></textarea>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <label for="rsaplaintext" class="form-label">Plain Text to Encrypt</label>
-          <input type="text" id="rsaplaintext" class="form-control" placeholder="Enter plain text"
-            [(ngModel)]="rsaUserPlainText">
-        </div>
-        <div class="col-md-6">
-          <label for="rsaencryptedtext" class="form-label">Encrypted Text to Decrypt</label>
-          <input type="text" id="rsaencryptedtext" class="form-control" placeholder="Enter encrypted text"
-            [(ngModel)]="rsaUserEncryptedText">
+      <div class="d-flex justify-content-center mb-3">
+        <div class="mode-toggle" role="group" aria-label="Encryption mode toggle">
+          <button type="button" class="mode-btn mode-btn-aes" [class.active]="activeMode === 'aes'"
+            (click)="setMode('aes')">AES</button>
+          <button type="button" class="mode-btn mode-btn-rsa" [class.active]="activeMode === 'rsa'"
+            (click)="setMode('rsa')">RSA</button>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-6">
+      <div *ngIf="activeMode === 'aes'">
+        <section class="panel mb-3">
+          <h2 class="panel-title">Symmetric Key</h2>
+          <div class="row">
+            <div class="col-md-6 key-section">
+              <label for="key" class="form-label">Symmetric Key</label>
+              <input type="text" id="key" class="form-control" placeholder="Enter symmetric key here"
+                [(ngModel)]="encDecKey">
+            </div>
+
+            <div class="col-md-6 key-section">
+              <label for="keyIV" class="form-label">Symmetric IV Key</label>
+              <input type="text" id="keyIV" class="form-control" placeholder="Enter symmetric IV key here"
+                [(ngModel)]="encDecKeyIV">
+            </div>
+          </div>
+        </section>
+
+        <section class="panel mb-3">
+          <h2 class="panel-title">Data</h2>
           <div class="row">
             <div class="col-md-6">
-              <button type="button" class="btn btn-light" (click)="clearRsaEncryptDataFields()">Clear</button>
+              <label for="plaintext" class="form-label">Plain Text to Encrypt</label>
+              <input type="text" id="plaintext" class="form-control" placeholder="Enter plain text"
+                [(ngModel)]="userPlainText">
             </div>
             <div class="col-md-6">
-              <button id="rsa-encrypt-btn" class="btn btn-primary"
-                (click)="rsaDataEncryptor(rsaUserPlainText)">Encrypt</button>
+              <label for="encryptedtext" class="form-label">Encrypted Text to Decrypt</label>
+              <input type="text" id="encryptedtext" class="form-control" placeholder="Enter encrypted text"
+                [(ngModel)]="userEncryptedText">
+            </div>
+          </div>
+
+          <div class="row action-row">
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-md-6">
+                  <button type="button" class="btn btn-light" (click)="clearEncryptDataFields()">Clear</button>
+                </div>
+                <div class="col-md-6">
+                  <button id="encrypt-btn" class="btn btn-primary"
+                    (click)="dataEncryptor(userPlainText)">Encrypt</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+
+              <div class="row">
+                <div class="col-md-6">
+                  <button type="button" class="btn btn-light" (click)="clearDecryptDataFields()">Clear</button>
+                </div>
+                <div class="col-md-6">
+                  <button id="decrypt-btn" class="btn btn-secondary"
+                    (click)="dataDecryptor(userEncryptedText)">Decrypt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="label-section">
+              <div class="output-header">
+                <span class="output-title">Encrypted Value</span>
+                <img *ngIf='encryptedData!=""' [src]="copiedId === 'aes-enc' ? 'assets/img/check.svg' : 'assets/img/copy.svg'" alt="copy" class="copy-icon"
+                  (click)="copyToClipboard(encryptedData, 'aes-enc')" [title]="copiedId === 'aes-enc' ? 'Copied!' : 'Copy to clipboard'">
+              </div>
+              <div id="encrypted-label" class="encrypted-label">
+                {{encryptedData}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="label-section">
+              <div class="output-header">
+                <span class="output-title">Decrypted Value</span>
+                <img *ngIf='decryptedData!=""' [src]="copiedId === 'aes-dec' ? 'assets/img/check.svg' : 'assets/img/copy.svg'" alt="copy" class="copy-icon"
+                  (click)="copyToClipboard(decryptedData, 'aes-dec')" [title]="copiedId === 'aes-dec' ? 'Copied!' : 'Copy to clipboard'">
+              </div>
+              <div id="decrypted-label" class="decrypted-label"> {{decryptedData}}</div>
             </div>
           </div>
         </div>
-        <div class="col-md-6">
+
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-danger" (click)="clearAll()">Clear All</button>
+        </div>
+      </div>
+
+      <div *ngIf="activeMode === 'rsa'">
+        <section class="panel mb-3">
+          <h2 class="panel-title">RSA Keys</h2>
+          <div class="row">
+            <div class="col-md-6 key-section">
+              <label for="rsaPublicKey" class="form-label">RSA Public Key (Base64 / PEM)</label>
+              <textarea id="rsaPublicKey" class="form-control" rows="3" placeholder="Enter RSA public key here"
+                [(ngModel)]="rsaPublicKey"></textarea>
+            </div>
+
+            <div class="col-md-6 key-section">
+              <label for="rsaPrivateKey" class="form-label">RSA Private Key (Base64 / PEM)</label>
+              <textarea id="rsaPrivateKey" class="form-control" rows="3" placeholder="Enter RSA private key here"
+                [(ngModel)]="rsaPrivateKey"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel mb-3">
+          <h2 class="panel-title">Data</h2>
           <div class="row">
             <div class="col-md-6">
-              <button type="button" class="btn btn-light" (click)="clearRsaDecryptDataFields()">Clear</button>
+              <label for="rsaplaintext" class="form-label">Plain Text to Encrypt</label>
+              <input type="text" id="rsaplaintext" class="form-control" placeholder="Enter plain text"
+                [(ngModel)]="rsaUserPlainText">
             </div>
             <div class="col-md-6">
-              <button id="rsa-decrypt-btn" class="btn btn-secondary"
-                (click)="rsaDataDecryptor(rsaUserEncryptedText)">Decrypt</button>
+              <label for="rsaencryptedtext" class="form-label">Encrypted Text to Decrypt</label>
+              <input type="text" id="rsaencryptedtext" class="form-control" placeholder="Enter encrypted text"
+                [(ngModel)]="rsaUserEncryptedText">
+            </div>
+          </div>
+
+          <div class="row action-row">
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-md-6">
+                  <button type="button" class="btn btn-light" (click)="clearRsaEncryptDataFields()">Clear</button>
+                </div>
+                <div class="col-md-6">
+                  <button id="rsa-encrypt-btn" class="btn btn-primary"
+                    (click)="rsaDataEncryptor(rsaUserPlainText)">Encrypt</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-md-6">
+                  <button type="button" class="btn btn-light" (click)="clearRsaDecryptDataFields()">Clear</button>
+                </div>
+                <div class="col-md-6">
+                  <button id="rsa-decrypt-btn" class="btn btn-secondary"
+                    (click)="rsaDataDecryptor(rsaUserEncryptedText)">Decrypt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" *ngIf="rsaError">
+            <div class="col-12">
+              <div class="alert alert-danger" role="alert">{{rsaError}}</div>
+            </div>
+          </div>
+        </section>
+
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="label-section">
+              <div class="output-header">
+                <span class="output-title">Encrypted Value</span>
+                <img *ngIf='rsaEncryptedData!=""' [src]="copiedId === 'rsa-enc' ? 'assets/img/check.svg' : 'assets/img/copy.svg'" alt="copy" class="copy-icon"
+                  (click)="copyToClipboard(rsaEncryptedData, 'rsa-enc')" [title]="copiedId === 'rsa-enc' ? 'Copied!' : 'Copy to clipboard'">
+              </div>
+              <div id="rsa-encrypted-label" class="encrypted-label">
+                {{rsaEncryptedData}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="label-section">
+              <div class="output-header">
+                <span class="output-title">Decrypted Value</span>
+                <img *ngIf='rsaDecryptedData!=""' [src]="copiedId === 'rsa-dec' ? 'assets/img/check.svg' : 'assets/img/copy.svg'" alt="copy" class="copy-icon"
+                  (click)="copyToClipboard(rsaDecryptedData, 'rsa-dec')" [title]="copiedId === 'rsa-dec' ? 'Copied!' : 'Copy to clipboard'">
+              </div>
+              <div id="rsa-decrypted-label" class="decrypted-label"> {{rsaDecryptedData}}</div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="row" *ngIf="rsaError">
-        <div class="col-12">
-          <div class="alert alert-danger" role="alert">{{rsaError}}</div>
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-danger" (click)="clearRsaAll()">Clear All</button>
         </div>
       </div>
 
-      <div class="row mt-4">
-        <div class="col-md-6">
-          <div class="label-section">
-            <div class="row d-grid align-items-end justify-content-end text-center mb-0">
-              <img *ngIf='rsaEncryptedData!=""' src="assets/img/copy.svg" alt="copy" class="copy-icon"
-                (click)="copyToClipboard(rsaEncryptedData)">
-            </div>
-            Encrypted Value:
-            <div id="rsa-encrypted-label" class="encrypted-label">
-              {{rsaEncryptedData}}
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="label-section">
-            <div class="row d-grid align-items-end justify-content-end text-center mb-0">
-              <img *ngIf='rsaDecryptedData!=""' src="assets/img/copy.svg" alt="copy" class="copy-icon"
-                (click)="copyToClipboard(rsaDecryptedData)">
-            </div>
-            Decrypted Value:
-            <div id="rsa-decrypted-label" class="decrypted-label"> {{rsaDecryptedData}}</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-end">
-        <button type="button" class="btn btn-danger" (click)="clearRsaAll()">Clear All</button>
-      </div>
+      <footer class="app-footer">
+        <div>Processed entirely in your browser — no data leaves this page.</div>
+        <div class="app-footer-credit">Developed by Amit W</div>
+      </footer>
     </div>
   </div>
 

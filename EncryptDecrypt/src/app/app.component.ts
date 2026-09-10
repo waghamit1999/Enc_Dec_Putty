@@ -11,6 +11,9 @@ export class AppComponent {
   title = 'EncryptDecrypt';
   textToCopy: string = '';
 
+  // Id of the copy icon currently showing the "copied" tick, if any.
+  copiedId: string | null = null;
+
   constructor(private rsaCrypto: RsaCryptoService) {}
 
   // Active screen: 'aes' or 'rsa'
@@ -84,8 +87,10 @@ export class AppComponent {
     return null;
   }
 
-  // Function to copy text to the clipboard
-  copyToClipboard(copiedData: string): void {
+  // Function to copy text to the clipboard.
+  // `id` (optional) identifies which copy icon triggered this, so it can
+  // briefly swap to a tick icon and revert after 2 seconds.
+  copyToClipboard(copiedData: string, id?: string): void {
     this.textToCopy = copiedData;
     if (!this.textToCopy) {
       alert('No text to copy!');
@@ -94,7 +99,14 @@ export class AppComponent {
     navigator.clipboard
       .writeText(this.textToCopy)
       .then(() => {
-        // alert('Text copied to clipboard!');
+        if (id) {
+          this.copiedId = id;
+          setTimeout(() => {
+            if (this.copiedId === id) {
+              this.copiedId = null;
+            }
+          }, 2000);
+        }
       })
       .catch((err) => {
         console.error('Failed to copy text: ', err);
