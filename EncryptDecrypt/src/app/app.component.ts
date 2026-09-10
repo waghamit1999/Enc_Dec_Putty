@@ -96,21 +96,60 @@ export class AppComponent {
       alert('No text to copy!');
       return;
     }
-    navigator.clipboard
-      .writeText(this.textToCopy)
-      .then(() => {
-        if (id) {
-          this.copiedId = id;
-          setTimeout(() => {
-            if (this.copiedId === id) {
-              this.copiedId = null;
-            }
-          }, 2000);
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to copy text: ', err);
-      });
+
+    const onCopied = () => {
+      if (id) {
+        this.copiedId = id;
+        setTimeout(() => {
+          if (this.copiedId === id) {
+            this.copiedId = null;
+          }
+        }, 2000);
+      }
+    };
+
+    // navigator.clipboard only exists in a secure context (HTTPS, or
+    // localhost). It is undefined when this tool is opened over plain HTTP
+    // on an internal host, so calling .writeText on it throws. Fall back to
+    // the legacy execCommand-based copy, which still works over HTTP.
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(this.textToCopy)
+        .then(onCopied)
+        .catch((err) => {
+          console.error('Failed to copy text: ', err);
+        });
+      return;
+    }
+
+    if (this.legacyCopyToClipboard(this.textToCopy)) {
+      onCopied();
+    } else {
+      console.error('Failed to copy text: clipboard is unavailable in this context.');
+    }
+  }
+
+  private legacyCopyToClipboard(text: string): boolean {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    // Keep it off-screen and out of the tab order rather than hidden, since
+    // some browsers refuse to select() a hidden element.
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    let succeeded = false;
+    try {
+      succeeded = document.execCommand('copy');
+    } catch {
+      succeeded = false;
+    }
+
+    document.body.removeChild(textarea);
+    return succeeded;
   }
 
   // ---------------- RSA Section ----------------
