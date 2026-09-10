@@ -1,5 +1,6 @@
 import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import * as CryptoJS from 'crypto-js';
+import { RsaCryptoService } from './services/rsa-crypto.service';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,11 @@ export class AppComponent {
   title = 'EncryptDecrypt';
   textToCopy: string = '';
 
+  constructor(private rsaCrypto: RsaCryptoService) {}
+
+  // Active screen: 'aes' or 'rsa'
+  activeMode: 'aes' | 'rsa' = 'aes';
+
   encDecKey: string = '';
   encDecKeyIV: string = '';
   userPlainText: string = '';
@@ -17,6 +23,19 @@ export class AppComponent {
 
   encryptedData: string = '';
   decryptedData: string = '';
+
+  // RSA specific fields
+  rsaPublicKey: string = '';
+  rsaPrivateKey: string = '';
+  rsaUserPlainText: string = '';
+  rsaUserEncryptedText: string = '';
+  rsaEncryptedData: string = '';
+  rsaDecryptedData: string = '';
+  rsaError: string = '';
+
+  setMode(mode: 'aes' | 'rsa') {
+    this.activeMode = mode;
+  }
 
   clearAll() {
     this.encDecKey = '';
@@ -80,5 +99,66 @@ export class AppComponent {
       .catch((err) => {
         console.error('Failed to copy text: ', err);
       });
+  }
+
+  // ---------------- RSA Section ----------------
+  // RSA-OAEP / SHA-256 via RsaCryptoService (node-forge), which is
+  // equivalent to .NET's RSA.Create() + RSAEncryptionPadding.OaepSHA256
+  // used in the reference C# implementation. See RsaCryptoService for why
+  // node-forge is used instead of the browser's crypto.subtle.
+
+  clearRsaEncryptDataFields() {
+    this.rsaUserPlainText = '';
+    this.rsaEncryptedData = '';
+    this.rsaError = '';
+  }
+
+  clearRsaDecryptDataFields() {
+    this.rsaUserEncryptedText = '';
+    this.rsaDecryptedData = '';
+    this.rsaError = '';
+  }
+
+  clearRsaAll() {
+    this.rsaPublicKey = '';
+    this.rsaPrivateKey = '';
+    this.clearRsaEncryptDataFields();
+    this.clearRsaDecryptDataFields();
+  }
+
+  async rsaDataEncryptor(plainTextData: any) {
+    this.rsaError = '';
+    if (!plainTextData || !this.rsaPublicKey) {
+      return null;
+    }
+    try {
+      this.rsaEncryptedData = await this.rsaCrypto.encrypt(
+        plainTextData.toString(),
+        this.rsaPublicKey
+      );
+      return this.rsaEncryptedData;
+    } catch (err: any) {
+      console.error('RSA encryption failed: ', err);
+      this.rsaError = err?.message || 'RSA encryption failed. Please check the public key and try again.';
+      return null;
+    }
+  }
+
+  async rsaDataDecryptor(encryptedData: any) {
+    this.rsaError = '';
+    if (!encryptedData || !this.rsaPrivateKey) {
+      return null;
+    }
+    try {
+      this.rsaDecryptedData = await this.rsaCrypto.decrypt(
+        encryptedData.toString(),
+        this.rsaPrivateKey
+      );
+      return this.rsaDecryptedData;
+    } catch (err: any) {
+      console.error('RSA decryption failed: ', err);
+      this.rsaError = err?.message || 'RSA decryption failed. Please check the private key and encrypted text.';
+      return null;
+    }
   }
 }
