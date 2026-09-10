@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encryption/Decryption UI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <div>
+      <label for="form-title" class="form-label mb-4 d-flex justify-content-center">Angular Encryption/Decryption Using
+        NPM&nbsp;
+        <a href="https://www.npmjs.com/package/crypto-js" target="_blank">crypto-js</a></label>
+    </div>
+    <div class="key-section mb-4">
+      <label for="key" class="form-label">Symmetric Key</label>
+      <input type="text" id="key" class="form-control" placeholder="Enter symmetric key here" [(ngModel)]="encDecKey">
+    </div>
+
+    <div class="key-section mb-4">
+      <label for="key" class="form-label">Symmetric IV Key</label>
+      <input type="text" id="key" class="form-control" placeholder="Enter symmetric IV key here"
+        [(ngModel)]="encDecKeyIV">
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <label for="plaintext" class="form-label">Plain Text to Encrypt</label>
+        <input type="text" id="plaintext" class="form-control" placeholder="Enter plain text"
+          [(ngModel)]="userPlainText">
+      </div>
+      <div class="col-md-6">
+        <label for="encryptedtext" class="form-label">Encrypted Text to Decrypt</label>
+        <input type="text" id="encryptedtext" class="form-control" placeholder="Enter encrypted text"
+          [(ngModel)]="userEncryptedText">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col-md-6">
+            <button type="button" class="btn btn-light" (click)="clearEncryptDataFields()">Clear</button>
+          </div>
+          <div class="col-md-6">
+            <button id="encrypt-btn" class="btn btn-primary" (click)="dataEncryptor(userPlainText)">Encrypt</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+
+        <div class="row">
+          <div class="col-md-6">
+            <button type="button" class="btn btn-light" (click)="clearDecryptDataFields()">Clear</button>
+          </div>
+          <div class="col-md-6">
+            <button id="decrypt-btn" class="btn btn-secondary"
+              (click)="dataDecryptor(userEncryptedText)">Decrypt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="label-section">
+          <div class="row d-grid align-items-end justify-content-end text-center mb-0">
+            <img *ngIf='encryptedData!=""' src="assets/img/copy.svg" alt="copy" class="copy-icon"
+              (click)="copyToClipboard(encryptedData)">
+          </div>
+          Encrypted Value:
+          <div id="encrypted-label" class="encrypted-label">
+            {{encryptedData}}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="label-section">
+          <div class="row d-grid align-items-end justify-content-end text-center mb-0">
+            <img *ngIf='decryptedData!=""' src="assets/img/copy.svg" alt="copy" class="copy-icon"
+              (click)="copyToClipboard(decryptedData)">
+          </div>
+          Decrypted Value:
+          <div id="decrypted-label" class="decrypted-label"> {{decryptedData}}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <button type="button" class="btn btn-danger" (click)="clearAll()">Clear All</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
