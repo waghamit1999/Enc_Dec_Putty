@@ -16,8 +16,10 @@ export class AppComponent {
 
   constructor(private rsaCrypto: RsaCryptoService) {}
 
-  // Active screen: 'aes' or 'rsa'
-  activeMode: 'aes' | 'rsa' = 'aes';
+  // Active screen: 'aes' (this project's own convention, Hex key/IV),
+  // 'aes-ciem' (matches the CIEM app's crypto service, Base64 key/IV), or
+  // 'rsa'.
+  activeMode: 'aes' | 'aes-ciem' | 'rsa' = 'aes';
 
   encDecKey: string = '';
   encDecKeyIV: string = '';
@@ -26,6 +28,14 @@ export class AppComponent {
 
   encryptedData: string = '';
   decryptedData: string = '';
+
+  // AES-CIEM specific fields (Base64 key/IV, see ciemDataEncryptor/Decryptor)
+  ciemKey: string = '';
+  ciemKeyIV: string = '';
+  ciemUserPlainText: string = '';
+  ciemUserEncryptedText: string = '';
+  ciemEncryptedData: string = '';
+  ciemDecryptedData: string = '';
 
   // RSA specific fields
   rsaPublicKey: string = '';
@@ -36,7 +46,7 @@ export class AppComponent {
   rsaDecryptedData: string = '';
   rsaError: string = '';
 
-  setMode(mode: 'aes' | 'rsa') {
+  setMode(mode: 'aes' | 'aes-ciem' | 'rsa') {
     this.activeMode = mode;
   }
 
@@ -83,6 +93,73 @@ export class AppComponent {
       });
       this.decryptedData = decrypted.toString(CryptoJS.enc.Utf8);
       return decrypted.toString(CryptoJS.enc.Utf8);
+    }
+    return null;
+  }
+
+  // ---------------- AES-CIEM Section ----------------
+  // Mirrors the CIEM app's crypto service
+  // (ciem_v13/src/app/shared/services/crypto/crypto.service.ts):
+  // AES-256-CBC-PKCS7, but the key/IV are Base64-encoded (matching .NET's
+  // Convert.ToBase64String output) rather than Hex like the AES-CI screen
+  // above. Encrypt reads `.ciphertext` directly (Base64 out, no OpenSSL
+  // "Salted__" header); decrypt rebuilds a CipherParams from the Base64
+  // ciphertext. Kept as a separate screen/fields so the existing AES-CI
+  // feature above is untouched.
+
+  clearCiemEncryptDataFields() {
+    this.ciemUserPlainText = '';
+    this.ciemEncryptedData = '';
+  }
+
+  clearCiemDecryptDataFields() {
+    this.ciemUserEncryptedText = '';
+    this.ciemDecryptedData = '';
+  }
+
+  clearCiemAll() {
+    this.ciemKey = '';
+    this.ciemKeyIV = '';
+    this.clearCiemEncryptDataFields();
+    this.clearCiemDecryptDataFields();
+  }
+
+  ciemDataEncryptor(plainTextData: any) {
+    if (plainTextData && this.ciemKey && this.ciemKeyIV) {
+      const key = CryptoJS.enc.Base64.parse(this.ciemKey);
+      const iv = CryptoJS.enc.Base64.parse(this.ciemKeyIV);
+      const encrypted = CryptoJS.AES.encrypt(
+        CryptoJS.enc.Utf8.parse(plainTextData.toString()),
+        key,
+        {
+          iv: iv,
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7,
+        }
+      );
+      this.ciemEncryptedData = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
+      return this.ciemEncryptedData;
+    }
+    return null;
+  }
+
+  ciemDataDecryptor(encryptedData: any) {
+    if (encryptedData && this.ciemKey && this.ciemKeyIV) {
+      const key = CryptoJS.enc.Base64.parse(this.ciemKey);
+      const iv = CryptoJS.enc.Base64.parse(this.ciemKeyIV);
+      const decrypted = CryptoJS.AES.decrypt(
+        CryptoJS.lib.CipherParams.create({
+          ciphertext: CryptoJS.enc.Base64.parse(encryptedData.toString()),
+        }),
+        key,
+        {
+          iv: iv,
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7,
+        }
+      );
+      this.ciemDecryptedData = decrypted.toString(CryptoJS.enc.Utf8);
+      return this.ciemDecryptedData;
     }
     return null;
   }

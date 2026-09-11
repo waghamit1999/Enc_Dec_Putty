@@ -15,7 +15,7 @@
         <div class="app-header-icon" aria-hidden="true">🔐</div>
         <h1 class="app-title">Encryption / Decryption Toolkit</h1>
         <div>
-          <label for="form-title" class="app-subtitle" *ngIf="activeMode === 'aes'">Angular Encryption/Decryption Using
+          <label for="form-title" class="app-subtitle" *ngIf="activeMode !== 'rsa'">Angular Encryption/Decryption Using
             NPM&nbsp;
             <a href="https://www.npmjs.com/package/crypto-js" target="_blank">crypto-js</a></label>
           <label for="form-title" class="app-subtitle" *ngIf="activeMode === 'rsa'">Angular Encryption/Decryption Using
@@ -28,6 +28,8 @@
         <div class="mode-toggle" role="group" aria-label="Encryption mode toggle">
           <button type="button" class="mode-btn mode-btn-aes" [class.active]="activeMode === 'aes'"
             (click)="setMode('aes')">AES</button>
+          <button type="button" class="mode-btn mode-btn-aes-ciem" [class.active]="activeMode === 'aes-ciem'"
+            (click)="setMode('aes-ciem')">AES-CIEM</button>
           <button type="button" class="mode-btn mode-btn-rsa" [class.active]="activeMode === 'rsa'"
             (click)="setMode('rsa')">RSA</button>
         </div>
@@ -36,6 +38,8 @@
       <div *ngIf="activeMode === 'aes'">
         <section class="panel mb-3">
           <h2 class="panel-title">Symmetric Key</h2>
+          <p class="key-note">Key/IV must be <strong>Hex</strong>-encoded (a 32-byte key = 64 hex characters, a
+            16-byte IV = 32 hex characters).</p>
           <div class="row">
             <div class="col-md-6 key-section">
               <label for="key" class="form-label">Symmetric Key</label>
@@ -120,6 +124,98 @@
 
         <div class="d-flex justify-content-end">
           <button type="button" class="btn btn-danger" (click)="clearAll()">Clear All</button>
+        </div>
+      </div>
+
+      <div *ngIf="activeMode === 'aes-ciem'">
+        <section class="panel mb-3">
+          <h2 class="panel-title">Symmetric Key</h2>
+          <p class="key-note">Key/IV must be <strong>Base64</strong>-encoded — matches the CIEM (.NET) backend's
+            <code>Convert.ToBase64String(...)</code> key/IV format.</p>
+          <div class="row">
+            <div class="col-md-6 key-section">
+              <label for="ciemKey" class="form-label">Symmetric Key</label>
+              <input type="text" id="ciemKey" class="form-control" placeholder="Enter symmetric key here"
+                [(ngModel)]="ciemKey">
+            </div>
+
+            <div class="col-md-6 key-section">
+              <label for="ciemKeyIV" class="form-label">Symmetric IV Key</label>
+              <input type="text" id="ciemKeyIV" class="form-control" placeholder="Enter symmetric IV key here"
+                [(ngModel)]="ciemKeyIV">
+            </div>
+          </div>
+        </section>
+
+        <section class="panel mb-3">
+          <h2 class="panel-title">Data</h2>
+          <div class="row">
+            <div class="col-md-6">
+              <label for="ciemplaintext" class="form-label">Plain Text to Encrypt</label>
+              <input type="text" id="ciemplaintext" class="form-control" placeholder="Enter plain text"
+                [(ngModel)]="ciemUserPlainText">
+            </div>
+            <div class="col-md-6">
+              <label for="ciemencryptedtext" class="form-label">Encrypted Text to Decrypt</label>
+              <input type="text" id="ciemencryptedtext" class="form-control" placeholder="Enter encrypted text"
+                [(ngModel)]="ciemUserEncryptedText">
+            </div>
+          </div>
+
+          <div class="row action-row">
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-md-6">
+                  <button type="button" class="btn btn-light" (click)="clearCiemEncryptDataFields()">Clear</button>
+                </div>
+                <div class="col-md-6">
+                  <button id="ciem-encrypt-btn" class="btn btn-primary"
+                    (click)="ciemDataEncryptor(ciemUserPlainText)">Encrypt</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+
+              <div class="row">
+                <div class="col-md-6">
+                  <button type="button" class="btn btn-light" (click)="clearCiemDecryptDataFields()">Clear</button>
+                </div>
+                <div class="col-md-6">
+                  <button id="ciem-decrypt-btn" class="btn btn-secondary"
+                    (click)="ciemDataDecryptor(ciemUserEncryptedText)">Decrypt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="label-section">
+              <div class="output-header">
+                <span class="output-title">Encrypted Value</span>
+                <img *ngIf='ciemEncryptedData!=""' [src]="copiedId === 'ciem-enc' ? 'assets/img/check.svg' : 'assets/img/copy.svg'" alt="copy" class="copy-icon"
+                  (click)="copyToClipboard(ciemEncryptedData, 'ciem-enc')" [title]="copiedId === 'ciem-enc' ? 'Copied!' : 'Copy to clipboard'">
+              </div>
+              <div id="ciem-encrypted-label" class="encrypted-label">
+                {{ciemEncryptedData}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="label-section">
+              <div class="output-header">
+                <span class="output-title">Decrypted Value</span>
+                <img *ngIf='ciemDecryptedData!=""' [src]="copiedId === 'ciem-dec' ? 'assets/img/check.svg' : 'assets/img/copy.svg'" alt="copy" class="copy-icon"
+                  (click)="copyToClipboard(ciemDecryptedData, 'ciem-dec')" [title]="copiedId === 'ciem-dec' ? 'Copied!' : 'Copy to clipboard'">
+              </div>
+              <div id="ciem-decrypted-label" class="decrypted-label"> {{ciemDecryptedData}}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-danger" (click)="clearCiemAll()">Clear All</button>
         </div>
       </div>
 

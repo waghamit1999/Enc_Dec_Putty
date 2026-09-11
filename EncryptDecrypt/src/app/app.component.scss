@@ -10,6 +10,7 @@
   --color-danger: #e5484d;
   --color-danger-dark: #c9302c;
   --color-accent-rsa: #6f42c1;
+  --color-accent-ciem: #0d9488;
   --radius-lg: 16px;
   --radius-md: 10px;
   --radius-sm: 8px;
@@ -95,6 +96,24 @@ body {
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
   margin: 0 0 10px;
+}
+
+.key-note {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  background-color: #eef2ff;
+  border: 1px solid #dde3fb;
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  margin: -2px 0 12px;
+}
+
+.key-note code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background-color: rgba(31, 39, 51, 0.06);
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .form-control {
@@ -212,8 +231,8 @@ textarea.form-control {
 
 .mode-btn {
   width: auto;
-  min-width: 100px;
-  padding: 6px 22px;
+  min-width: 90px;
+  padding: 6px 18px;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -241,6 +260,10 @@ textarea.form-control {
 
 .mode-btn-aes.active {
   background-color: var(--color-primary);
+}
+
+.mode-btn-aes-ciem.active {
+  background-color: var(--color-accent-ciem);
 }
 
 .mode-btn-rsa.active {
